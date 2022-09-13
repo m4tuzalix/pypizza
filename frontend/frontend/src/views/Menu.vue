@@ -24,20 +24,23 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import {api} from "@/api.js"
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted} from 'vue'
+import PizzaInterface from "@/interfaces/pizza.ts"
+import router from '@/router';
 
 export default defineComponent({
   setup(){
 
-    const pizzas = ref([])
+    const pizzas: Array<PizzaInterface> = ref([])
 
     onMounted(async ()=>{
       await api.get('pizza/pizzas/')
       .then(response=>{
         pizzas.value = response.data
       })
+      .catch(router.push('/'))
     })
     return{
       pizzas
