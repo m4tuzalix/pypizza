@@ -18,6 +18,14 @@ async def find_pizza(name: str, db: Session = Depends(get_db)):
         return pizza
     raise HTTPException(status_code=400, detail=f"{name} does not exist")
 
+@router.get("/pizzas/")
+async def get_pizzas(db: Session = Depends(get_db)):
+    pizzas = crud.get_all_pizzas(db)
+    if pizzas:
+        print(pizzas)
+        return pizzas
+    raise HTTPException(status_code=400, detail="No pizzas found")
+
 @router.delete("/delete_pizza/{name}")
 async def delete_pizza(name: str, db: Session = Depends(get_db)):
     try:

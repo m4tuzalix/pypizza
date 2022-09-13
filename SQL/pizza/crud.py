@@ -14,6 +14,9 @@ def create_pizza(db: Session, pizza: schemas.Pizza):
 def get_pizza(db: Session, pizza_name: str):
     return db.query(models.Pizza).filter(models.Pizza.name == pizza_name).first()
 
+def get_all_pizzas(db: Session):
+    return db.query(models.Pizza).all()
+
 def delete_pizza(db: Session, pizza_name: str):
     pizza = get_pizza(db, pizza_name)
     db.delete(pizza)
