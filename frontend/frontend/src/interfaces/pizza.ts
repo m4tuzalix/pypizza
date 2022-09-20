@@ -1,4 +1,4 @@
-interface PizzaInterface{
+export interface PizzaInterface{
     name?: string,
     ingredients?: Array<string>,
     price: DoubleRange
