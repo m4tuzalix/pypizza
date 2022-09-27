@@ -22,7 +22,7 @@
       </div>
       <div class="modal-footer">
         <button @click='size_choice = props.default_size' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button @click='func_make_order' type="button" class="btn btn-primary">Add to cart</button>
+        <button @click='func_make_order' type="button" class="btn btn-primary" data-bs-dismiss="modal">Add to cart</button>
       </div>
     </div>
   </div>
@@ -62,7 +62,6 @@ export default defineComponent({
             size: size_choice
           }
           STORE.dispatch('make_order', order)
-          // STORE.commit('update_order_price', {price: props.pizza.price, amount: amount.value})
         }
 
         return{
