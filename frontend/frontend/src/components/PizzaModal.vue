@@ -6,42 +6,72 @@
         <h5 class="modal-title" id="exampleModalLabel">{{props.pizza.name}}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-        <div class="row">
-          <div class="col">
-            amount: {{amount}}
-          </div>
-          <div class="col">
-            <button type="button" class="btn btn-primary btn-sm" @click='amount++'>+</button>
-            <button :disabled='amount < 2' type="button" class="btn btn-primary btn-sm" @click='amount--'> -</button>
-          </div>
+      <div class="modal-body container">
+        <div class="d-inline-block p-2">
+          amount: {{amount}}
+        </div>
+        <div class="d-inline-block p-3">
+          <button type="button" class="btn btn-primary btn-sm" @click='amount++'>+</button>
+          <div class='d-inline-block p-1'></div>
+          <button :disabled='amount < 2' type="button" class="btn btn-primary btn-sm" @click='amount--'> -</button>
+        </div>
+        <br>
+        <div class='d-inline-block p-1' v-for='size of _pizza_size'>
+            <b-button @click='size_choice = size' class="btn d-inline p-2" :variant='size_choice == size ? "success":"info"'>{{size}}</b-button>
         </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Add to cart</button>
+        <button @click='size_choice = props.default_size' type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button @click='func_make_order' type="button" class="btn btn-primary">Add to cart</button>
       </div>
     </div>
   </div>
 </div>
+{{STORE.state.orders}}
+{{STORE.state.price}}
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, onMounted, PropType} from 'vue'
-import {PizzaInterface} from '@/interfaces/pizza'
+import {PizzaInterface, ReactiveOrderedPizza, PizzaSize} from '@/interfaces/pizza'
+import { useStore } from 'vuex'
+import { key } from '@/store'
 
 export default defineComponent({
     props:{
       pizza: {
         type: Object as PropType<PizzaInterface>,
         required: true
+      },
+      default_size: {
+        type: String,
+        required: true,
       }
     },
     setup(props){
+        const STORE = useStore(key)
+        const _pizza_size = [PizzaSize.SMALL, PizzaSize.MEDIUM, PizzaSize.BIG]
+
         const amount = ref(1)
+        const size_choice = ref(PizzaSize.MEDIUM)
+
+        const func_make_order = ()=>{
+            const order: ReactiveOrderedPizza = {
+            pizza: props.pizza,
+            amount: amount,
+            size: size_choice
+          }
+          STORE.dispatch('make_order', order)
+          // STORE.commit('update_order_price', {price: props.pizza.price, amount: amount.value})
+        }
+
         return{
-          amount, props
+          _pizza_size, size_choice, amount, STORE, props, func_make_order
         }
     }
 })
 </script>
+
+<style scoped>
+  .btn-close {display: none;}
+</style>

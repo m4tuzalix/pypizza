@@ -21,22 +21,20 @@
           <button type="button" class="btn btn-primary btn-sm" @click='selected_pizza = pizza' data-bs-toggle="modal" data-bs-target="#exampleModal">Add</button>
         </div>
       </div>
-      <PizzaModal :pizza='selected_pizza'/>
+      <PizzaModal :pizza='selected_pizza' default_size='medium'/>
 </div>
 </template>
 
 <script lang="ts">
 import {api} from "@/api.js"
-import { defineComponent, ref, onMounted} from 'vue'
+import {defineComponent, ref, onMounted, PropType} from 'vue'
 import PizzaModal from '@/components/PizzaModal.vue'
 import router from '@/router';
-import {PizzaInterface} from '@/interfaces/pizza'
 
 export default defineComponent({
   components:{
     PizzaModal
   },
-
   setup(){
 
     const pizzas = ref({})
@@ -54,7 +52,7 @@ export default defineComponent({
     })
     return{
       pizzas,
-      selected_pizza
+      selected_pizza,
     }
   }
 })

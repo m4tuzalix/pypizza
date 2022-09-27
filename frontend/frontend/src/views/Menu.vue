@@ -1,5 +1,7 @@
 <template>
-<div><Pizzas/></div>
+  <div>
+    <Pizzas/>
+  </div>
 </template>
 
 <script lang="ts">
@@ -9,10 +11,5 @@ export default defineComponent({
   components:{
     Pizzas
   },
-
-  setup(){
-
-    const cart = ref({})
-  }
 })
 </script>
