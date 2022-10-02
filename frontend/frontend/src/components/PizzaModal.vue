@@ -27,8 +27,6 @@
     </div>
   </div>
 </div>
-{{STORE.state.orders}}
-{{STORE.state.price}}
 </template>
 
 <script lang="ts">
@@ -55,6 +53,14 @@ export default defineComponent({
         const amount = ref(1)
         const size_choice = ref(PizzaSize.MEDIUM)
 
+        const _set_default_size = ()=>{
+          size_choice.value = PizzaSize.MEDIUM
+        }
+
+        const _set_default_amount = ()=>{
+          amount.value = 1
+        }
+
         const func_make_order = ()=>{
             const order: ReactiveOrderedPizza = {
             pizza: props.pizza,
@@ -62,6 +68,10 @@ export default defineComponent({
             size: size_choice
           }
           STORE.dispatch('make_order', order)
+          STORE.dispatch('update_final_orders')
+
+          _set_default_size()
+          _set_default_amount()
         }
 
         return{

@@ -10,4 +10,6 @@ export interface PizzaOrderDetails{
 
 export interface State{
     orders: PizzaOrder,
+    final_orders: Array<NonReactiveOrderedPizza>,
+    order_value: number
 }

@@ -15,6 +15,7 @@ class PizzaExistsValidator:
 class StatusValidator:
     def __init__(self, orderStatus: schemas.OrderStatus):
         self.orderStatus = orderStatus
+        print(self.orderStatus)
     def validation(self, db: Session):
         """status must be unique and put in order: 1,2,3,4 etc not 1,3,4"""
         _status = self.orderStatus.status.value

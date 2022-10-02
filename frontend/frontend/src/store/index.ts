@@ -1,7 +1,7 @@
 import { createStore, Store} from 'vuex';
-import { InjectionKey, Ref, PropType } from 'vue';
+import { InjectionKey, Ref} from 'vue';
 import {PizzaOrder, PizzaOrderDetails, State} from '../interfaces/vuex_interfaces'
-import { ReactiveOrderedPizza, NonReactiveOrderedPizza, PizzaInterface, PizzaSize } from '@/interfaces/pizza';
+import { ReactiveOrderedPizza, NonReactiveOrderedPizza, PizzaSize, NonReactiveOrderedPizzas} from '@/interfaces/pizza';
 import createPersistedState from "vuex-persistedstate";
 
 export const key: InjectionKey<Store<State>> = Symbol()
@@ -11,27 +11,50 @@ export const store = createStore<State>({
   state(){
     return{
       orders: <PizzaOrder>{},
+      final_orders: <NonReactiveOrderedPizzas>{},
+      order_value: 0
     }
   },
   getters: {
-    get_orders(state: State){
+    get_orders(state: State): PizzaOrder{
       return state.orders
     },
+    empty_cart(state: State): boolean{
+      return Object.keys(state.orders).length === 0
+    },
+    last_order(state: State): boolean{
+      return state.final_orders.length === 1
+    }
 
   },
   mutations: {
-    add_pizza_to_order(state: State, ordered_pizza: NonReactiveOrderedPizza){
+    add_pizza_to_order(state: State, ordered_pizza: NonReactiveOrderedPizza): void{
       // adds new order to global orders
-      const [_pizzaName, _pizzaSize, _amount] = [ordered_pizza.pizza.name, ordered_pizza.size, ordered_pizza.amount]
-      const pizzaOrder = state.orders[_pizzaName]
+      const [_pizzaName, _pizzaSize, _amount] : [string, PizzaSize, number] = [ordered_pizza.pizza.name, ordered_pizza.size, ordered_pizza.amount]
+      const pizzaOrder: PizzaOrder = state.orders[_pizzaName]
 
       if(!pizzaOrder){state.orders[_pizzaName] = <PizzaOrderDetails>{}}
 
-      state.orders[_pizzaName][_pizzaSize] = ordered_pizza
+      if(state.orders[_pizzaName][_pizzaSize]){state.orders[_pizzaName][_pizzaSize].amount += _amount}
+      else{state.orders[_pizzaName][_pizzaSize] = ordered_pizza}
     },
+    remove_order(state: State, order: ReactiveOrderedPizza):  void{
+      const [_pizzaName, _pizzaSize]: [string, Ref<PizzaSize>] = [order.pizza.name, order.size]
+      delete state.orders[_pizzaName][_pizzaSize]
+      if(Object.keys(state.orders[_pizzaName]).length === 0){delete state.orders[_pizzaName]}
+    },
+    set_final_orders(state: State, orders: NonReactiveOrderedPizzas): void{
+      state.final_orders = orders
+    },
+    calc_final_price(state: State): void{
+      const _prices: number = Array.from(state.final_orders, order =>{
+        return order.pizza.price * order.amount
+      }).reduce((previous: number, actual: number) => {return previous + actual})
+      state.order_value = _prices
+    }
   },
   actions: {
-    make_order(context, OrderedPizza: ReactiveOrderedPizza){
+    make_order(context, OrderedPizza: ReactiveOrderedPizza): void{
       // Parses order to nonreactive state and passes it to mutations
       const _parse_ref_to_obj = (object: Ref<any> | any)=>{
         return JSON.parse(JSON.stringify(object))._value
@@ -43,23 +66,17 @@ export const store = createStore<State>({
       }
       context.commit('add_pizza_to_order', _OrderedPizza)
     },
-    finalize_order(context): Array<NonReactiveOrderedPizza>{
+    update_final_orders(context): void{
       // Creates proper format for backend [{order}, {order}, {order}] etc.
-      const _complete_order: Array<Array<NonReactiveOrderedPizza>> = Array.from(Object.values(context.state.orders), _order=>{
-        const _pizzas: Array<NonReactiveOrderedPizza> = Object.values(JSON.parse(JSON.stringify(_order)))
+      const complete_order: NonReactiveOrderedPizzas = Array.from(Object.values(context.state.orders), _order=>{
+        const _pizzas: NonReactiveOrderedPizzas = Object.values(_order)
         return _pizzas
-      })
-      return _complete_order.flatMap(order => order)
+      }).flatMap(order => order)
+      context.commit('set_final_orders', complete_order)
+      context.commit('calc_final_price')
     },
-    count_order_price(context, orders: Array<NonReactiveOrderedPizza>): number{
-      // Sum price*amount of all orders in array to retrieve final price
-      //  !! Just to visualize for customer. Price is also calculated on backend !!
-      const _prices: Array<number> = Array.from(orders, order =>{
-        return order.pizza.price * order.amount
-      })
-      return _prices.reduce((previous, actual) =>{
-        return previous + actual
-      })
+    delete_single_item(context, item: ReactiveOrderedPizza): void{
+      context.commit('remove_order', item)
     }
   },
   modules: {

@@ -23,3 +23,5 @@ export interface NonReactiveOrderedPizza{
     size: PizzaSize,
     amount: number
 }
+
+export interface NonReactiveOrderedPizzas extends Array<NonReactiveOrderedPizza>{}
