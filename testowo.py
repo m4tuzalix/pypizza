@@ -1,15 +1,10 @@
-class Figures:
-    magazzine = [5, 10, 8, 7, 9, 3, 22]
+test = [7,15,8,3]
 
-    def __init__(self, start):
-        self.start = start
+for x in range(len(test)-1):
+    nx = test[x+1]
+    cr = test[x]
+    if test[x] > test[x+1]:
+        test[x] = nx
+        test[x+1] = cr
 
-    def looking_position(self):
-        try:
-            return [x for x in range(len(self.magazzine)) if self.magazzine[x] == self.start][0]
-        except IndexError:
-            return 'Not found'
-
-
-figures = Figures(330)
-print(figures.looking_position())
+print(test)
